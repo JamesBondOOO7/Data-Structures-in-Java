@@ -172,7 +172,132 @@ public class AVLTree {
 		display(node.right);
 	}
 	
-	
+	public void remove(int item)
+    {
+        if( this.size == 0)
+        {
+            return;
+        }
+        this.remove(this.root, null, item, false);
+        this.size--;
+    }
+
+    private Node MaxNode(Node node)
+    {
+        if( node.right == null )
+        {
+            return node;
+        }
+
+        return MaxNode(node.right);
+    }
+
+    private void remove( Node child, Node parent , int item, boolean ilc)
+    {
+        // Item doesn't match
+        if( child == null )
+        {
+            return;
+        }
+
+        if( item > child.data )
+        {
+            this.remove(child.right, child, item, false);
+        }
+        else if( item < child.data )
+        {
+            this.remove(child.left, child, item, true);
+        }
+        else
+        {
+            // Case 1 (Leaf Node)
+            if( child.left == null && child.right == null )
+            {
+                if( ilc )
+                {
+                    parent.left = null;
+                }
+                else
+                {
+                    parent.right = null;
+                }
+            }
+
+            // Case 2
+            else if( child.left == null && child.right != null )
+            {
+                if( ilc )
+                {
+                    parent.left = child.right;
+                }
+                else
+                {
+                    parent.right = child.right;
+                }
+            }
+
+            // Case 3
+            else if( child.left != null && child.right == null )
+            {
+                if( ilc )
+                {
+                    parent.left = child.left;
+                }
+                else
+                {
+                    parent.right = child.left;
+                }
+            }
+
+            // Case 4
+            else
+            {
+                // Replacing the node with the max of the child's left branch
+                Node max_node = this.MaxNode(child.left);
+
+                child.data = max_node.data;
+
+                this.remove(child.left, child, max_node.data, true);
+            }
+        }
+
+        // This was same as deleting nodes from a BST
+        // Performing AVL Tree Updates !!
+
+        // Height Update
+        child.height = Math.max(this.height(child.left), this.height(child.right)) + 1;
+
+        // Balancing Factor
+        int bf = this.height(child.left) - this.height(child.right);
+
+        // AVL Problems
+
+        // LL Case
+        if( bf > 1 && item < child.left.data )
+        {
+            child = rightRotate(child);
+        }
+
+        // RR Case
+        else if( bf < -1 && item > child.right.data )
+        {
+            child = leftRotate(child);
+        }
+
+        // LR Case
+        else if( bf > 1 && item > child.left.data )
+        {
+            child.left = leftRotate(child.left);
+            child = rightRotate(child);
+        }
+
+        // RL Case
+        else if( bf < -1 && item < child.right.data )
+        {
+            child.right = rightRotate(child.right);
+            child = leftRotate(child);
+        }
+    }
 }
 
 
